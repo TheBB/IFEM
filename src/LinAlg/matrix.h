@@ -620,9 +620,11 @@ namespace utl //! General utility classes and functions.
       -# \f$ {\bf Y} = {\bf A}^T {\bf X} \f$
       -# \f$ {\bf Y} = {\bf Y} + {\bf A} {\bf X} \f$
       -# \f$ {\bf Y} = {\bf Y} + {\bf A}^T {\bf X} \f$
+      -# \f$ {\bf Y} = {\bf Y} - {\bf A} {\bf X} \f$
+      -# \f$ {\bf Y} = {\bf Y} - {\bf A}^T {\bf X} \f$
     */
     bool multiply(const std::vector<T>& X, std::vector<T>& Y,
-                  bool transA = false, bool addTo = false) const;
+                  bool transA = false, char addTo = 0) const;
 
     //! \brief Outer product between two vectors.
     bool outer_product(const std::vector<T>& X, const std::vector<T>& Y,
@@ -1032,14 +1034,14 @@ namespace utl //! General utility classes and functions.
   template<> inline
   bool matrix<float>::multiply(const std::vector<float>& X,
                                std::vector<float>& Y,
-                               bool transA, bool addTo) const
+                               bool transA, char addTo) const
   {
     if (!this->compatible(X,transA)) return false;
     if (!addTo) Y.resize(transA ? ncol : nrow);
 
     cblas_sgemv(CblasColMajor,
                 transA ? CblasTrans : CblasNoTrans,
-                nrow, ncol, 1.0f,
+                nrow, ncol, addTo < 0 ? -1.0f : 1.0f,
                 this->ptr(), nrow,
                 &X.front(), 1, addTo ? 1.0f : 0.0f,
                 &Y.front(), 1);
@@ -1050,14 +1052,14 @@ namespace utl //! General utility classes and functions.
   template<> inline
   bool matrix<double>::multiply(const std::vector<double>& X,
                                 std::vector<double>& Y,
-                                bool transA, bool addTo) const
+                                bool transA, char addTo) const
   {
     if (!this->compatible(X,transA)) return false;
     if (!addTo) Y.resize(transA ? ncol : nrow);
 
     cblas_dgemv(CblasColMajor,
                 transA ? CblasTrans : CblasNoTrans,
-                nrow, ncol, 1.0,
+                nrow, ncol, addTo < 0 ? -1.0 : 1.0,
                 this->ptr(), nrow,
                 &X.front(), 1, addTo ? 1.0 : 0.0,
                 &Y.front(), 1);
