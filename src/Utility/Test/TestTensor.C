@@ -277,3 +277,27 @@ TEST(TestTensor, Determinant)
   EXPECT_FLOAT_EQ(T2.det(), -2.0);
   EXPECT_FLOAT_EQ(T3.det(), 0.0);
 }
+
+
+TEST(TestTensor, Det)
+{
+  const double data[9] = { 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0 };
+
+  SymmTensor S0(std::vector<double>(data,data+1));
+  SymmTensor S1(std::vector<double>(data,data+3));
+  SymmTensor S2(std::vector<double>(data,data+4));
+  SymmTensor S3(std::vector<double>(data,data+6));
+
+  EXPECT_EQ(S0.dim(),1);
+  EXPECT_EQ(S1.dim(),2);
+  EXPECT_EQ(S2.dim(),2);
+  EXPECT_EQ(S3.dim(),3);
+
+  Tensor T0(1), T1(2), T2(3), T3(3);
+  T0 = S0; T1 = S1; T2 = S2; T3 = S3;
+
+  EXPECT_FLOAT_EQ(S0.det(),T0.det());
+  EXPECT_FLOAT_EQ(S1.det(),T1.det());
+  EXPECT_FLOAT_EQ(S2.det(),T2.det());
+  EXPECT_FLOAT_EQ(S3.det(),T3.det());
+}
