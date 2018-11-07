@@ -31,6 +31,9 @@ class TiXmlElement;
 class TimeStep
 {
 public:
+  typedef std::pair<std::vector<double>,double> Step; //!< Time step definition
+  typedef std::vector<Step> TimeSteps;                //!< Time step container
+
   //! \brief The constructor initializes the counters to zero.
   TimeStep();
   //! \brief Copy constructor.
@@ -86,10 +89,6 @@ private:
   double dtMax;      //!< Maximun time increment size
   double f1;         //!< Scale factor for increased time step size
   double f2;         //!< Scale factor for reduced time step size
-
-  typedef std::pair<std::vector<double>,double> Step; //!< Time step definition
-  typedef std::vector<Step> TimeSteps;                //!< Time step container
-
   TimeSteps           mySteps; //!< Time step definitions
   TimeSteps::iterator stepIt;  //!< Running iterator over the time steps
 

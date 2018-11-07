@@ -19,6 +19,7 @@
 #ifdef HAS_CEREAL
 #include <cereal/cereal.hpp>
 #include <cereal/archives/binary.hpp>
+#include <cereal/types/vector.hpp>
 #endif
 
 
@@ -320,7 +321,8 @@ bool TimeStep::cutback ()
 
 #ifdef HAS_CEREAL
 //! \brief Serializes TimeStep data \a tp to/from the archive \a ar.
-template<class T> void doSerializeOps (T& ar, TimeStep& tp)
+template<class T> void doSerializeOps (T& ar, TimeStep& tp,
+                                       TimeStep::TimeSteps& steps, size_t lstep)
 {
   ar(tp.step);
   ar(tp.starTime);
@@ -330,6 +332,14 @@ template<class T> void doSerializeOps (T& ar, TimeStep& tp)
   ar(tp.time.dtn);
   ar(tp.time.CFL);
   ar(tp.time.first);
+  ar(lstep);
+  size_t size = steps.size();
+  ar(size);
+  steps.resize(size);
+  for (auto& it : steps) {
+    ar(it.first);
+    ar(it.second);
+  }
 }
 #endif
 
@@ -340,7 +350,8 @@ bool TimeStep::serialize (std::map<std::string,std::string>& data) const
   std::ostringstream str;
   {
     cereal::BinaryOutputArchive ar(str);
-    doSerializeOps(ar,*const_cast<TimeStep*>(this));
+    TimeStep& tp = const_cast<TimeStep&>(*this);
+    doSerializeOps(ar,tp,tp.mySteps,tp.lstep);
   }
   data.insert(std::make_pair("TimeStep",str.str()));
   return true;
@@ -357,7 +368,8 @@ bool TimeStep::deSerialize (const std::map<std::string,std::string>& data)
   if (it != data.end()) {
     std::stringstream str(it->second);
     cereal::BinaryInputArchive ar(str);
-    doSerializeOps(ar,*this);
+    doSerializeOps(ar,*this,mySteps,lstep);
+    stepIt = mySteps.end();
     return true;
   }
 #endif
