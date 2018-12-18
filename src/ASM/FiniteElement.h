@@ -51,6 +51,8 @@ public:
   //! \brief Returns a reference to the basis function 2nd-derivatives.
   virtual Matrix3D& hess(char) { return d2NdX2; }
 
+  virtual int getiel() const { return iel; }
+
 protected:
   //! \brief Writes the finite element object to the given output stream.
   virtual std::ostream& write(std::ostream& os) const;
