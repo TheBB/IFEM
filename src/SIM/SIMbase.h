@@ -704,14 +704,13 @@ private:
   const std::vector<int>& getMADOF(unsigned char basis,
                                    unsigned char nndof) const;
 
-  //! \brief Dump requested left-hand-side matrices to file.
-  void dumpEqSys();
-
 public:
   static bool ignoreDirichlet; //!< Set to \e true for free vibration analysis
   static bool preserveNOrder;  //!< Set to \e true to preserve node ordering
 
 protected:
+  //! \brief Dump requested left-hand-side matrices to file.
+  void dumpEqSys();
   //! \brief Scalar field container
   typedef std::map<int,RealFunc*>     SclFuncMap;
   //! \brief Vector field container
