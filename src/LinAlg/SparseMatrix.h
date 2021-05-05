@@ -209,13 +209,10 @@ public:
   //! \param[out] rc Reciprocal condition number of the LHS-matrix (optional)
   virtual bool solve(SystemVector& B, bool newLHS = true, Real* rc = nullptr);
 
-  //! \brief Calculate compressed-sparse-row arrays from element map.
+  //! \brief Calculates compressed-sparse-row arrays from the element map.
   //! \param[out] IA Start index of each row in JA
   //! \param[out] JA Column indices
-  //! \param[in] nrow Number of rows
-  //! \param[in] elem Matrix element indices
-  static void calcCSR(IntVec& IA, IntVec& JA,
-                      size_t nrow, const ValueMap& elem);
+  void calcCSR(IntVec& IA, IntVec& JA) const;
 
 protected:
   //! \brief Converts the matrix to an optimized row-oriented format.

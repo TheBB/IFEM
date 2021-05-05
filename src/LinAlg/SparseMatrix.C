@@ -1390,8 +1390,7 @@ Real SparseMatrix::Linfnorm () const
 }
 
 
-void SparseMatrix::calcCSR (IntVec& IA, IntVec& JA,
-                            size_t nrow, const ValueMap& elem)
+void SparseMatrix::calcCSR (IntVec& IA, IntVec& JA) const
 {
   size_t nnz = elem.size();
   IA.resize(nrow+1,nnz);
