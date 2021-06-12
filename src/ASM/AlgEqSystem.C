@@ -281,7 +281,8 @@ bool AlgEqSystem::finalize (bool newLHS)
 
 
 bool AlgEqSystem::staticCondensation (Matrix& Ared, Vector& bred,
-                                      const IntVec& extNodes, size_t imat) const
+                                      const IntVec& extNodes, size_t imat,
+                                      const char* recmatFile) const
 {
   if (imat > A.size()) return false;
 
@@ -321,6 +322,13 @@ bool AlgEqSystem::staticCondensation (Matrix& Ared, Vector& bred,
   IFEM::cout <<"\nPerforming static condensation ["<< neq0 <<"x"<< neq0
              <<"] --> ["<< neq2 <<"x"<< neq2 <<"]"<< std::endl;
 
+  FILE* fd = recmatFile ? fopen(recmatFile,"wb") : nullptr;
+  if (fd)
+  {
+    IFEM::cout <<"\nWriting recovery matrix "<< recmatFile << std::endl;
+    fprintf(fd,"#IFEM recovery matrix: %zu %zu\n",neq1,1+neq2);
+  }
+
   // Extract the associated sub-vectors
   StdVector R1(neq1); // Internal DOFs
   Vector    R2(neq2); // External (retained) DOFs
@@ -337,6 +345,14 @@ bool AlgEqSystem::staticCondensation (Matrix& Ared, Vector& bred,
   // Calculate [A11]^-1*{R1} => R1
   if (!Asub[0].solve(R1,true))
     return false;
+
+  if (fd && fwrite(R1.ptr(),sizeof(double),neq1,fd) < neq1)
+  {
+    std::cerr <<" *** AlgEqSystem::staticCondensation: Failed to write"
+              <<" recovery matrix."<< std::endl;
+    fclose(fd);
+    return false;
+  }
 
   // Calculate [A21]*([A11]^-1*{R1}) => Rtmp
   StdVector Rtmp;
@@ -367,7 +383,17 @@ bool AlgEqSystem::staticCondensation (Matrix& Ared, Vector& bred,
 
     // Insert {R2}-{Rtmp} into the reduced matrix Ared
     Ared.fillColumn(ieq2,R2-Rtmp);
+
+    R1 *= -1.0; // Store the recovery matrix -[A11]^-1*[A12] on file
+    if (fd && fwrite(R1.ptr(),sizeof(double),neq1,fd) < neq1)
+    {
+      std::cerr <<" *** AlgEqSystem::staticCondensation: Failed to write"
+                <<" recovery matrix."<< std::endl;
+      fclose(fd);
+      return false;
+    }
   }
 
+  if (fd) fclose(fd);
   return true;
 }
